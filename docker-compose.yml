@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:17.2
+    container_name: db
+    environment:
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+        interval: 10s
+        retries: 5
+        start_period: 30s
+        timeout: 10s
+    ports: 
+      - "${POSTGRES_PORT}:5432"
+  # add db for testing
+  db_test:
+    image: postgres:17.2
+    container_name: db_test
+    environment:
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ./scripts:/docker-entrypoint-initdb.d
+      - postgres_data_test:/var/lib/postgresql/data
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+        interval: 10s
+        retries: 5
+        start_period: 30s
+        timeout: 10s
+    ports: 
+      - "${POSTGRES_PORT_TEST}:5432"
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_data_test:
+    driver: local
